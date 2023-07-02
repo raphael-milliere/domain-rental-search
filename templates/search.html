@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Search Listings</h1>
+    <form method="GET" action="{{ url_for('search') }}">
+        <div>
+            <label for="keyword"><b>Keyword:</b></label>
+            <input type="text" name="keyword" id="keyword" placeholder="Any keyword" value="{{ query.keyword }}">
+        </div>
+        <div>
+            <label for="address"><b>Address:</b></label>
+            <input type="text" name="address" id="address" placeholder="Address" value="{{ query.address }}">
+        </div>
+        <div>
+            <label for="bedrooms"><b>Beds:</b></label> <input type="number" name="bedrooms" id="bedrooms" min="1" max="5" value="{{ query.bedrooms }}"> | <label for="bathrooms"><b>Baths:</b></label> <input type="number" name="bathrooms" id="bathrooms" min="1" max="5" value="{{ query.bathrooms }}">
+        </div>
+        <div><b>Price range: </b>
+            <label for="min_price">from</label>
+            <input type="number" name="min_price" id="min_price" min="0" max="2000" value="{{ query.min_price }}">
+            <label for="max_price">to</label>
+            <input type="number" name="max_price" id="max_price" min="0" max="2000" value="{{ query.max_price }}">
+        </div>
+        <div><b>Greatness score range: </b>
+            <label for="min_score">from</label>
+            <input type="number" name="min_score" id="min_score" min="0" max="100" value="{{ query.min_score }}">
+            <label for="max_score">to</label>
+            <input type="number" name="max_score" id="max_score" min="0" max="100" value="{{ query.max_score }}">
+        </div>
+        <h3>Search for specific features</h3>
+        <div>
+            <label for="keywords"><b>Features:</b></label>
+            <select class="select2" name="keywords" id="keywords" multiple="multiple">
+                <option value="luxury" {% if 'luxury' in query.getlist('keywords') %}selected{% endif %}>Luxury</option>
+                <option value="huge" {% if 'huge' in query.getlist('keywords') %}selected{% endif %}>Huge</option>
+                <option value="resort" {% if 'resort' in query.getlist('keywords') %}selected{% endif %}>Resort</option>
+                <option value="sauna" {% if 'sauna' in query.getlist('keywords') %}selected{% endif %}>Sauna</option>
+                <option value="gym" {% if 'gym' in query.getlist('keywords') %}selected{% endif %}>Gym</option>
+                <option value="pool" {% if 'pool' in query.getlist('keywords') %}selected{% endif %}>Pool</option>
+                <option value="terrace" {% if 'terrace' in query.getlist('keywords') %}selected{% endif %}>Terrace</option>
+                <option value="balcony" {% if 'balcony' in query.getlist('keywords') %}selected{% endif %}>Balcony</option>
+                <option value="rooftop" {% if 'rooftop' in query.getlist('keywords') %}selected{% endif %}>Rooftop</option>
+                <option value="garden" {% if 'garden' in query.getlist('keywords') %}selected{% endif %}>Garden</option>
+            </select>
+        </div>        
+        <h3>Search in specific suburbs</h3>
+        <div>
+            <label for="suburbs"><b>Suburbs:</b></label>
+            <select class="select2" name="suburbs" id="suburbs" multiple="multiple">
+                {% for suburb in unique_suburbs %}
+                    <option value="{{ suburb }}"{% if suburb in suburbs %} selected {% endif %}>{{ suburb }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <h3>Search properties added within a specific date range</h3>
+        <div>
+            <label for="start_date">From</label>
+            <input type="date" name="start_date" id="start_date" value="{{ query.start_date }}">
+            <label for="end_date">to</label>
+            <input type="date" name="end_date" id="end_date" value="{{ query.end_date }}">
+        </div>  
+        <h3>Rank results</h3>   
+        <div>
+            <select name="ranking" id="ranking">
+                <option value="default" {% if query.ranking == 'default' %}selected{% endif %}>Default</option>
+                <option value="greatness_desc" {% if query.ranking == 'greatness_desc' %}selected{% endif %}>Greatness Score (High to Low)</option>
+                <option value="greatness_asc" {% if query.ranking == 'greatness_asc' %}selected{% endif %}>Greatness Score (Low to High)</option>
+                <option value="price_asc" {% if query.ranking == 'price_asc' %}selected{% endif %}>Price (Low to High)</option>
+                <option value="price_desc" {% if query.ranking == 'price_desc' %}selected{% endif %}>Price (High to Low)</option>
+                <option value="date_asc" {% if query.ranking == 'date_asc' %}selected{% endif %}>Date Added (Old to New)</option>
+                <option value="date_desc" {% if query.ranking == 'date_desc' %}selected{% endif %}>Date Added (New to Old)</option>
+                <option value="value_desc" {% if query.ranking == 'value_desc' %}selected{% endif %}>Value Score (High to Low)</option>
+                <option value="value_asc" {% if query.ranking == 'value_asc' %}selected{% endif %}>Value Score (Low to High)</option>
+            </select>
+        </div>
+        <div>
+            <button type="submit">Search</button> <button type="submit" name="reset" class="reset-button">Reset</button>
+        </div>          
+    </form>
+
+    {% if searched and not listings %}
+    <p>No results found.</p>
+    {% elif listings %}
+        
+        <h2>Search Results (Page {{ page }} of {{ total_pages }})</h2>
+        {% for listing in listings %}
+        <h3><a href="{{ url_for('listing', listing_id=listing['id']) }}">{{ listing['address'] }}</a></h3>
+        <p><b>{{ listing['bedrooms'] }} Bedrooms in {{ listing['suburb'] }} for ${{ listing['price'] }} PW</b></p>
+        {% set image_path = listing['images_path'] + '/img_0.jpg' %}
+            {% if image_path|check_file_exists %}
+                <p><img src="{{ url_for('serve_image', filename=image_path) }}" alt="Listing Image" width="400"></p>
+            {% else %}
+                <p>No Image Available</p>
+            {% endif %}
+        <h4>Greatness score: {{ listing['greatness_score'] }}</h4>
+        <h4>
+            {% if listing['value_score'] == -1e10 %}
+                N/A [not enough data on suburb]
+            {% else %}
+                Better value than {{ listing['value_score_percentile'] }}% of listings [value score: {{ listing['value_score'] | round(1)}}]
+            {% endif %}
+        </h4>
+        <ul>
+            <li><p>Date Added: {{ listing['date_added']|format_datetime }}</p></li>
+            <li><p>Price: ${{ listing['price'] }}</p></li>
+        </ul>
+        <hr>
+        {% endfor %}
+        
+    {% endif %}
+
+    <div class="pagination">
+        <a href="{{ get_url_with_params('search', page=1) }}">First</a>
+        {% if page > 1 %}
+            <a href="{{ get_url_with_params('search', page=page-1) }}">Previous</a>
+        {% endif %}
+        <span>Page {{ page }} of {{ total_pages }}</span>
+        {% if page < total_pages %}
+            <a href="{{ get_url_with_params('search', page=page+1) }}">Next</a>
+        {% endif %}
+        <a href="{{ get_url_with_params('search', page=total_pages) }}">Last</a>
+    </div>
+
+<script>
+    $(document).ready(function() {
+    $('.select2').select2();
+    allowClear: true;
+    closeOnSelect: false
+});
+
+</script>
+    
+{% endblock %}

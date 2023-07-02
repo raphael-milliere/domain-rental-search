@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>{{ listing['heading'] }}</h1>
+    <h2>{{ listing['bedrooms'] }} Bedrooms in {{ listing['suburb'] }} for ${{ listing['price'] }} PW</h2>
+    <div>     
+    {% if is_favorite %}
+        <form method="post" action="{{ url_for('remove_from_favorites', listing_id=listing['id']) }}">
+            <input type="submit" value="Remove from Favorites">
+        </form>
+    {% else %}
+        <form method="post" action="{{ url_for('add_to_favorites', listing_id=listing['id']) }}">
+            <input type="text" name="positive_notes" placeholder="POSITIVES">
+            <input type="text" name="negative_notes" placeholder="NEGATIVES">
+            <input type="submit" value="Add to Favorites">
+        </form>
+    {% endif %}
+    </div>
+    &nbsp;
+    <div>
+        <a href="{{ listing['url'] }}"> {{ listing['url'] }}</a>
+    </div>
+    <div class="box">
+        <h4>Greatness score: {{ listing['greatness_score'] }}</h4>
+        <p>Breakdown of the greatness score:</p>
+        <ul>
+            {% for category, features in greatness_details.items() %}
+                <li>
+                    <b>{{ category }}:</b> {{ features | join(", ") }}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div>
+        <p>Date Added: {{ listing['date_added']|format_datetime }}</p>
+        <p>Date Available: {{ listing['date_available'] }}</p>
+        <p>Price: ${{ listing['price'] }}</p> 
+        <p>Address: {{ listing['address'] }} [<a href="https://www.abs.gov.au/census/find-census-data/quickstats/2021/POA{{ postcode }}">get suburb stats</a>]</p>
+        <p>Bedrooms: {{ listing['bedrooms'] }} | Bathrooms: {{ listing['bathrooms'] }} | Parking: {{ listing['parking'] }}</p>
+    </div>
+    <div>
+        <h4>Features</h4>
+        <p>{{ listing['features'] }}</p>
+    </div>
+    <div>
+        <h4>Description</h4>
+        <p>{{ listing['description']|markdown|safe }}</p>
+    </div>
+
+    <div>
+        <iframe
+            width="50%"
+            height="450"
+            style="border:0"
+            loading="lazy"
+            allowfullscreen
+            src="https://www.google.com/maps/embed/v1/place?key=AIzaSyA-V3L235PDvM4BJxA4vt_d-ADhpdoF3MU&q={{ listing['address'] | urlencode }}">
+        </iframe>
+    </div>
+    
+    <div>
+        {% for image in images %}
+            {% set image_path = listing['images_path'] + '/' + image %}
+            {% if image_path|check_file_exists %}
+                <p><img src="{{ url_for('serve_image', filename=image_path) }}" alt="Listing Image" width="50%"></p>
+            {% endif %}
+        {% else %}
+            <p>No Images Available</p>
+        {% endfor %}
+    </div>
+{% endblock %}

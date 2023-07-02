@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>General stats</h2>
+    <p>There are currently <b>{{ stats.total_listings }}</b> properties in the database.</p>
+    <p>The latest properties were added on <b>{{ last_scraped_date|format_datetime }}</b>.</p>
+    <p>The average price is <b>${{ stats.avg_price }}</b>.</p>
+    <p>The average greatness score is <b>{{ stats.avg_greatness_score }}</b> (the highest is {{ stats.max_greatness_score }}).</p>
+    <p>The average value score is <b>{{ stats.avg_value_score }}</b> (the highest is {{ stats.max_value_score }}).</p>
+
+    <h2>Suburb stats</h2>
+    <p>The suburb with the most listings is <b>{{ most_listings_suburb.suburb }}</b> with a total of {{ most_listings_suburb.listing_count }} listings.</p>
+    <p>The suburb with the highest average greatness score is <b>{{ top_suburb.suburb }}</b> with an average greatness score of {{ top_suburb.avg_greatness }}.</p>
+    <p>The most expensive suburb is <b>{{ most_expensive_suburb.suburb }}</b> with an average price of ${{ most_expensive_suburb.avg_price_suburb }}.</p>
+
+    <h2>Latest Listings</h2>
+    <!-- List the latest listings -->
+    <ul id="latest_listings">
+        {% for listing in latest_listings %}
+        <li><a href="{{ url_for('listing', listing_id=listing['id']) }}">{{ listing['heading'] }} [${{ listing['price'] }}]</a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}

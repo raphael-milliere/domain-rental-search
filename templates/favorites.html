@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>My Favorites</h1>
+    {% if favorite_listings %}
+        {% for listing in favorite_listings %}
+        <h2><a href="{{ url_for('listing', listing_id=listing['listing_id']) }}">{{ listing['address'] }}</a></h2>
+        <h2>{{ listing['bedrooms'] }} Bedrooms in {{ listing['suburb'] }} for ${{ listing['price'] }} PW</h2>
+        <h3><i>{{ listing['heading'] }}</i></h3>
+        <h3 style="color:rgb(61, 122, 42);">POSITIVES: {{ listing['positive_notes'] }}</h3>
+        <h3 style="color:rgb(160, 28, 28);">NEGATIVES: {{ listing['negative_notes'] }}</h3>
+        {% set image_path = listing['images_path'] + '/img_0.jpg' %}
+            {% if image_path|check_file_exists %}
+                <p><img src="{{ url_for('serve_image', filename=image_path) }}" alt="Listing Image" width="400"></p>
+            {% else %}
+                <p>No Image Available</p>
+            {% endif %}
+        <hr>
+        {% endfor %}
+    {% else %}
+        <p>You haven't added any favorites yet.</p>
+    {% endif %}
+{% endblock %}

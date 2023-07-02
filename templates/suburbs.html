@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Suburb Statistics</h1>
+
+
+    <form method="post">
+        <label for="sort_order">Sort by:</label>
+        <select name="sort_order" id="sort_order" onchange="this.form.submit()">
+            <option value="suburb_asc" {{ 'selected' if sort_order == 'suburb_asc' else '' }}>Suburb (A-Z)</option>
+            <option value="price_desc" {{ 'selected' if sort_order == 'price_desc' else '' }}>Average price (high to low)</option>
+            <option value="price_asc" {{ 'selected' if sort_order == 'price_asc' else '' }}>Average price (low to high)</option>
+            <option value="greatness_desc" {{ 'selected' if sort_order == 'greatness_desc' else '' }}>Average greatness score (high to low)</option>
+            <option value="greatness_asc" {{ 'selected' if sort_order == 'greatness_asc' else '' }}>Average greatness score (low to high)</option>
+        </select>
+        <input type="submit" value="Sort">
+    </form>
+
+    {% for stats in suburb_stats %}
+        <h2>{{ stats.suburb }}</h2>
+        <p>Number of listings: <b>{{ stats.total_listings }}</b></p>
+
+        <p>Average price: <b style="color: {{ 'red' if stats.price_diff >= 0 else 'green' }}">${{ stats.avg_price }}</b> ({{ stats.price_diff|abs }}% {{ 'higher' if stats.price_diff >= 0 else 'lower' }} than global average)</p>
+        
+        <p>Average greatness score: <b style="color: {{ 'green' if stats.greatness_diff >= 0 else 'red' }}">{{ stats.avg_greatness_score }}</b> ({{ stats.greatness_diff|abs }}% {{ 'higher' if stats.greatness_diff >= 0 else 'lower' }} than global average)</p>
+
+        <p><a href="https://www.abs.gov.au/census/find-census-data/quickstats/2021/POA{{ stats.postcode }}">Official census statistics</a></p>
+        
+        <hr>
+    {% endfor %}
+{% endblock %}

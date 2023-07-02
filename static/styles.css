@@ -1,0 +1,56 @@
+/* styles.css */
+
+body {
+    font-family: 'Lato', sans-serif;
+    margin: 40px;
+  }
+  
+  h1, h2 {
+    margin-bottom: 30px;
+  }
+  
+  form div {
+    margin-bottom: 20px;
+  }
+  
+  ul {
+    list-style-type: disc;
+    margin-left: 0px;
+  }
+  
+  li {
+    margin-bottom: 10px;
+  }
+  
+  img {
+    max-width: 100%;
+  }
+
+  .box {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    background-color: #f9f9f9;
+    box-shadow: 0px 10px 20px rgba(0,0,0,0.19), 0px 6px 6px rgba(0,0,0,0.23);
+}
+
+.box h4 {
+    margin: 0;
+    padding: 0;
+    color: #333;
+    font-size: 1.5em;
+}
+
+.box ul {
+    padding-left: 20px;
+}
+
+.box ul li {
+    color: #666;
+    line-height: 1.5em;
+}
+
+.select2 {
+  width: 100px;
+}
