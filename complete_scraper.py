@@ -1,7 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-import time
 from bs4 import BeautifulSoup
 import urllib.request
 import os
@@ -10,6 +9,7 @@ from datetime import datetime
 from urllib.parse import urlparse
 import re
 import json
+from PIL import Image
 
 # URL and CSS selector
 PROPERTY_PAGE_URLS_CSS_SELECTOR = "div[data-testid='listing-card-wrapper-premiumplus'] a"
@@ -34,6 +34,17 @@ features_categories = {
 # Sydney Suburbs list
 SYDNEY_SUBURBS = ['Alexandria','Annandale','Arncliffe','Ashfield','Artarmon','Auburn','Balgowlah','Balmain','Barangaroo','Beaconsfield','Bellevue Hill','Bexley','Birchgrove','Blacktown','Bondi Beach','Bondi Junction','Bondi','Botany','Brighton-Le-Sands','Broadway','Bronte','Burwood','Cabramatta','Cammeray','Camperdown','Castle Hill','Centennial Park','Chatswood','Chippendale','Clovelly','Concord','Coogee','Cremorne','Cronulla','Crows Nest','Darling Point','Darlinghurst','Darlington','Dawes Point','Double Bay','Dulwich Hill','Eastlakes','Edgecliff','Elizabeth Bay','Enmore','Erskineville','Fairfield','Fairlight','Five Dock','Forest Lodge','Freshwater','Glebe','Greenwich','Haberfield','Haymarket','Haymarket','Hunters Hill','Hurstville','Kellyville','Kensington','Kingsford','Kirribilli','Kogarah','Lane Cove','Lavender Bay','Leichhardt','Lidcombe', 'Manly', 'Marrickville','Mascot','McMahons Point','Menai','Middle Cove','Millers Point','Milsons Point','Miranda','Mosman','Naremburn','Neutral Bay','Newington','Newtown','North Bondi','North Ryde','North Sydney','Northbridge','Paddington','Parramatta','Penrith','Petersham','Point Piper','Potts Point','Pymble','Pyrmont','Queenscliff','Queens Park','Randwick','Redfern','Rockdale','Rose Bay','Rosebery','Rushcutters Bay','Ryde','St Leonards','St Peters','Stanmore','Strathfield','Summer Hill','Surry Hills','Sutherland','Sydenham','Sydney','Sydney Olympic Park','Tempe','The Rocks','Turrella','Ultimo','Vaucluse','Waterloo','Waverley','Waverton','Wollstonecraft','Woollahra','Woolloomooloo','Woolooware','Woolwich','Zetland']
 
+# Function to resize images
+def resize_images(path, max_width):
+    for filename in os.listdir(path):
+        if filename.endswith(('.jpg', '.png', '.jpeg')):
+            img_path = os.path.join(path, filename)
+            img = Image.open(img_path)
+            width, height = img.size
+            if width > max_width:
+                new_height = int(max_width * height / width)
+                img = img.resize((max_width, new_height), Image.ANTIALIAS)
+                img.save(img_path)
   
 # Calculate greatness score based on desired feature keywords
 def calculate_greatness_score(features, description):
@@ -239,6 +250,9 @@ def scrape_domain_listing(url):
         os.makedirs(dir_name)
     for i, img_url in enumerate(images):
         urllib.request.urlretrieve(img_url, f'{dir_name}/img_{i}.jpg')
+
+    # Resize images
+    resize_images(dir_name, 800)
 
     driver.quit()
 

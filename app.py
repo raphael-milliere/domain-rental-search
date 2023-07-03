@@ -59,12 +59,14 @@ def calculate_value_scores(listings):
 
 # Define app
 app = Flask(__name__)
+app.config.from_object('config.DevelopmentConfig')  # API stuff
 app.config['UPLOAD_FOLDER'] = 'static/images'
 app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg', 'png', 'gif'}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 
 app.jinja_env.filters['urlencode'] = quote_plus
 app.jinja_env.globals.update(get_url_with_params=get_url_with_params)
+
 
 
 def get_db():
@@ -321,6 +323,8 @@ def listing(listing_id):
 
         postcode = extract_postcode(listing['address']) # Extract postcode from address
 
+        google_api_key = app.config['GOOGLE_MAPS_API_KEY'] # retrieve google api key
+
         cursor.execute("SELECT * FROM favorites WHERE listing_id = ?", (listing_id,))  # Check if listing is in favorites
         is_favorite = cursor.fetchone() is not None  # True if listing is in favorites, else False
 
@@ -332,7 +336,7 @@ def listing(listing_id):
         # Decode greatness_details into a Python dictionary
         greatness_details = json.loads(listing['greatness_details'])
 
-    return render_template('listing.html', listing=listing, images=images, is_favorite=is_favorite, greatness_details=greatness_details, postcode=postcode)  
+    return render_template('listing.html', listing=listing, images=images, is_favorite=is_favorite, greatness_details=greatness_details, postcode=postcode, google_api_key=google_api_key)  
 
 # Serve static images
 @app.route('/<path:filename>')

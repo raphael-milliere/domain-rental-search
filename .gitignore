@@ -2,3 +2,4 @@ static/images/
 TransportNSW.py
 commute_time.py
 api_keys
+config.py
