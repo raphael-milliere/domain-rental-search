@@ -40,7 +40,20 @@
                 <option value="rooftop" {% if 'rooftop' in query.getlist('keywords') %}selected{% endif %}>Rooftop</option>
                 <option value="garden" {% if 'garden' in query.getlist('keywords') %}selected{% endif %}>Garden</option>
             </select>
-        </div>        
+        </div>
+        <h3>Filter with positive qualifiers</h3>
+        <div>
+            <label for="keywords"><b>Qualifiers:</b></label>
+            <select class="select2" name="keywords" id="keywords" multiple="multiple">
+                <option value="exceptional" {% if 'exceptional' in query.getlist('keywords') %}selected{% endif %}>Exceptional</option>
+                <option value="stunning" {% if 'stunning' in query.getlist('keywords') %}selected{% endif %}>Stunning</option>
+                <option value="amazing" {% if 'amazing' in query.getlist('keywords') %}selected{% endif %}>Amazing</option>
+                <option value="superb" {% if 'superb' in query.getlist('keywords') %}selected{% endif %}>Superb</option>
+                <option value="outstanding" {% if 'outstanding' in query.getlist('keywords') %}selected{% endif %}>Outstanding</option>
+                <option value="unique" {% if 'unique' in query.getlist('keywords') %}selected{% endif %}>Unique</option>
+                <option value="spectacular" {% if 'spectacular' in query.getlist('keywords') %}selected{% endif %}>Spectacular</option>
+            </select>
+        </div>           
         <h3>Search in specific suburbs</h3>
         <div>
             <label for="suburbs"><b>Suburbs:</b></label>

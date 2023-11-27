@@ -27,19 +27,18 @@ def get_url_with_params(endpoint, **kwargs):
 def calculate_value_scores(listings):
     df = pd.DataFrame(listings)
 
-    # Calculate counts per suburb
-    count_per_suburb = df['suburb'].value_counts()
-
     # Convert price column to numeric, handling non-numeric values as NaN
     df['price'] = pd.to_numeric(df['price'], errors='coerce')
 
+    # Calculate averages per suburb
     avg_price_per_suburb = df.groupby('suburb')['price'].mean()
     avg_score_per_suburb = df.groupby('suburb')['greatness_score'].mean()
 
+    # Calculating differences
     df['price_diff'] = df.apply(lambda row: row['price'] - avg_price_per_suburb[row['suburb']], axis=1)
     df['score_diff'] = df.apply(lambda row: row['greatness_score'] - avg_score_per_suburb[row['suburb']], axis=1)
 
-    # Calculate price_diff_norm and score_diff_norm by adding a small positive constant to avoid division by zero
+    # Normalize price_diff and score_diff
     df['price_diff_norm'] = (df['price_diff'] - df['price_diff'].min() + 0.01) / (df['price_diff'].max() - df['price_diff'].min() + 0.01)
     df['score_diff_norm'] = (df['score_diff'] - df['score_diff'].min() + 0.01) / (df['score_diff'].max() - df['score_diff'].min() + 0.01)
 
@@ -48,12 +47,15 @@ def calculate_value_scores(listings):
 
     # Calculate the value_score
     df['value_score'] = df.apply(lambda row: (row['price_diff_inverse'] * row['score_diff_norm'])
-                                if count_per_suburb[row['suburb']] >= 5 and np.isfinite(row['price'])
-                                else np.nan,
+                                if np.isfinite(row['price'])
+                                else 0,  # Default to 0 if price is not finite
                                 axis=1)
 
+    # Replace NaN with a default value, e.g., 0
+    df['value_score'].fillna(0, inplace=True)
+
     # Compute percentiles
-    df['value_score_percentile'] = df['value_score'].dropna().rank(pct=True).apply(lambda x: round(x * 100))
+    df['value_score_percentile'] = df['value_score'].rank(pct=True).apply(lambda x: round(x * 100))
 
     return df.to_dict('records')
 
@@ -421,4 +423,7 @@ def suburbs():
     return render_template('suburbs.html', suburb_stats=suburb_stats, global_avgs=global_avgs, sort_order=sort_order)
 
 if __name__ == '__main__':
+    # app.run(host='0.0.0.0', port=5000)
+
     app.run(debug=True)
+    # app.run(host="0.0.0.0", port=5000, debug=True, threaded=False)
